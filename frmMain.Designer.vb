@@ -25,6 +25,7 @@ Partial Class frmMain
         Me.components = New System.ComponentModel.Container()
         Me.TabControl1 = New System.Windows.Forms.TabControl()
         Me.TabPage1 = New System.Windows.Forms.TabPage()
+        Me.chkPDF = New System.Windows.Forms.CheckBox()
         Me.txtIPAddress = New System.Windows.Forms.TextBox()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.chkAutoStart = New System.Windows.Forms.CheckBox()
@@ -37,7 +38,7 @@ Partial Class frmMain
         Me.lblHost = New System.Windows.Forms.LinkLabel()
         Me.ToolTip1 = New System.Windows.Forms.ToolTip(Me.components)
         Me.NotifyIcon1 = New System.Windows.Forms.NotifyIcon(Me.components)
-        Me.chkPDF = New System.Windows.Forms.CheckBox()
+        Me.chkIsBase64 = New System.Windows.Forms.CheckBox()
         Me.TabControl1.SuspendLayout()
         Me.TabPage1.SuspendLayout()
         Me.SuspendLayout()
@@ -53,6 +54,7 @@ Partial Class frmMain
         '
         'TabPage1
         '
+        Me.TabPage1.Controls.Add(Me.chkIsBase64)
         Me.TabPage1.Controls.Add(Me.chkPDF)
         Me.TabPage1.Controls.Add(Me.txtIPAddress)
         Me.TabPage1.Controls.Add(Me.Label1)
@@ -69,6 +71,17 @@ Partial Class frmMain
         Me.TabPage1.TabIndex = 0
         Me.TabPage1.Text = "General"
         Me.TabPage1.UseVisualStyleBackColor = True
+        '
+        'chkPDF
+        '
+        Me.chkPDF.AutoSize = True
+        Me.chkPDF.Location = New System.Drawing.Point(96, 116)
+        Me.chkPDF.Name = "chkPDF"
+        Me.chkPDF.Size = New System.Drawing.Size(57, 17)
+        Me.chkPDF.TabIndex = 9
+        Me.chkPDF.Text = "Is PDF"
+        Me.ToolTip1.SetToolTip(Me.chkPDF, "Check if you are going to receive PDF file.")
+        Me.chkPDF.UseVisualStyleBackColor = True
         '
         'txtIPAddress
         '
@@ -170,16 +183,16 @@ Partial Class frmMain
         Me.NotifyIcon1.Text = "NotifyIcon1"
         Me.NotifyIcon1.Visible = True
         '
-        'chkPDF
+        'chkIsBase64
         '
-        Me.chkPDF.AutoSize = True
-        Me.chkPDF.Location = New System.Drawing.Point(96, 116)
-        Me.chkPDF.Name = "chkPDF"
-        Me.chkPDF.Size = New System.Drawing.Size(57, 17)
-        Me.chkPDF.TabIndex = 9
-        Me.chkPDF.Text = "Is PDF"
-        Me.ToolTip1.SetToolTip(Me.chkPDF, "Check if you are going to receive PDF file.")
-        Me.chkPDF.UseVisualStyleBackColor = True
+        Me.chkIsBase64.AutoSize = True
+        Me.chkIsBase64.Location = New System.Drawing.Point(160, 116)
+        Me.chkIsBase64.Name = "chkIsBase64"
+        Me.chkIsBase64.Size = New System.Drawing.Size(73, 17)
+        Me.chkIsBase64.TabIndex = 10
+        Me.chkIsBase64.Text = "Is Base64"
+        Me.ToolTip1.SetToolTip(Me.chkIsBase64, "Check if you are going to receive PDF file.")
+        Me.chkIsBase64.UseVisualStyleBackColor = True
         '
         'frmMain
         '
@@ -216,4 +229,5 @@ Partial Class frmMain
     Friend WithEvents Label1 As Label
     Friend WithEvents NotifyIcon1 As NotifyIcon
     Friend WithEvents chkPDF As CheckBox
+    Friend WithEvents chkIsBase64 As CheckBox
 End Class

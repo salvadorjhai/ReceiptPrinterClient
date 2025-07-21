@@ -73,6 +73,7 @@ Public Class frmMain
 
         chkAutoStart.Checked = My.Settings.Autostart
         chkPDF.Checked = My.Settings.IsPDF
+        chkIsBase64.Checked = My.Settings.IsBase64
 
     End Sub
 
@@ -144,6 +145,7 @@ Public Class frmMain
                 My.Settings.Port = txtPort.Text
                 My.Settings.Autostart = chkAutoStart.Checked
                 My.Settings.IsPDF = chkPDF.Checked
+                My.Settings.IsBase64 = chkIsBase64.Checked
                 My.Settings.Save()
 
                 cboPrinters.Enabled = False
@@ -152,6 +154,7 @@ Public Class frmMain
                 btnFindFreePort.Enabled = False
                 chkAutoStart.Enabled = False
                 chkPDF.Enabled = False
+                chkIsBase64.Enabled = False
 
             Catch ex As Exception
                 MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
@@ -172,6 +175,7 @@ Public Class frmMain
             btnFindFreePort.Enabled = True
             chkAutoStart.Enabled = True
             chkPDF.Enabled = True
+            chkIsBase64.Enabled = True
 
         End If
     End Sub
@@ -214,10 +218,17 @@ Public Class frmMain
                     Try
                         ' Get POST body as byte array
                         Dim bodyBytes As Byte()
-                        Using ms As New IO.MemoryStream()
-                            request.InputStream.CopyTo(ms)
-                            bodyBytes = ms.ToArray()
-                        End Using
+                        If My.Settings.IsBase64 = False Or My.Settings.IsPDF = True Then
+                            Using ms As New IO.MemoryStream()
+                                request.InputStream.CopyTo(ms)
+                                bodyBytes = ms.ToArray()
+                            End Using
+                        Else
+                            Using reader As New StreamReader(request.InputStream, request.ContentEncoding)
+                                Dim base64String As String = reader.ReadToEnd()
+                                bodyBytes = Convert.FromBase64String(base64String)
+                            End Using
+                        End If
 
                         ' print
                         If My.Settings.IsPDF Then
@@ -230,6 +241,9 @@ Public Class frmMain
                                 End Using
                             End Using
                         Else
+                            'Dim hexDump = BitConverter.ToString(bodyBytes).Replace("-", " ")
+                            'File.WriteAllText(".\printerdump.txt", $"Received {bodyBytes.Length} bytes: {hexDump}")
+
                             posPrinter.SetDocument(bodyBytes)
                             posPrinter.PrintDocument()
                         End If

@@ -113,6 +113,18 @@ Namespace My
                 Me("IsPDF") = value
             End Set
         End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property IsBase64() As Boolean
+            Get
+                Return CType(Me("IsBase64"),Boolean)
+            End Get
+            Set
+                Me("IsBase64") = value
+            End Set
+        End Property
     End Class
 End Namespace
 
