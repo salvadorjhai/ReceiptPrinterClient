@@ -1,6 +1,9 @@
 ﻿Imports System.ComponentModel
+Imports System.Drawing.Printing
+Imports System.IO
 Imports System.Net
 Imports ESC_POS_USB_NET.Printer
+Imports PdfiumViewer
 
 Public Class frmMain
 
@@ -69,6 +72,7 @@ Public Class frmMain
         If String.IsNullOrWhiteSpace(My.Settings.Port) = False Then txtPort.Text = My.Settings.Port
 
         chkAutoStart.Checked = My.Settings.Autostart
+        chkPDF.Checked = My.Settings.IsPDF
 
     End Sub
 
@@ -139,6 +143,7 @@ Public Class frmMain
                 My.Settings.Host = txtIPAddress.Text
                 My.Settings.Port = txtPort.Text
                 My.Settings.Autostart = chkAutoStart.Checked
+                My.Settings.IsPDF = chkPDF.Checked
                 My.Settings.Save()
 
                 cboPrinters.Enabled = False
@@ -146,6 +151,7 @@ Public Class frmMain
                 txtPort.Enabled = False
                 btnFindFreePort.Enabled = False
                 chkAutoStart.Enabled = False
+                chkPDF.Enabled = False
 
             Catch ex As Exception
                 MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
@@ -165,6 +171,7 @@ Public Class frmMain
             txtPort.Enabled = True
             btnFindFreePort.Enabled = True
             chkAutoStart.Enabled = True
+            chkPDF.Enabled = True
 
         End If
     End Sub
@@ -185,7 +192,7 @@ Public Class frmMain
             Throw ex
         End Try
 
-        Dim printer = New Printer(cboPrinters.Text)
+        Dim posPrinter = New Printer(My.Settings.Printer)
 
         lblHost.Text = _SERVER.Prefixes.FirstOrDefault
         IsBusy = True
@@ -213,8 +220,19 @@ Public Class frmMain
                         End Using
 
                         ' print
-                        printer.SetDocument(bodyBytes)
-                        printer.PrintDocument()
+                        If My.Settings.IsPDF Then
+                            Using stream = New MemoryStream(bodyBytes)
+                                Using pdf = PdfDocument.Load(stream)
+                                    Using printdoc = pdf.CreatePrintDocument()
+                                        printdoc.PrinterSettings.PrinterName = My.Settings.Printer
+                                        printdoc.Print()
+                                    End Using
+                                End Using
+                            End Using
+                        Else
+                            posPrinter.SetDocument(bodyBytes)
+                            posPrinter.PrintDocument()
+                        End If
 
                         ' write response
                         Dim responseString As String = $"OK"

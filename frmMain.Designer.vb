@@ -37,6 +37,7 @@ Partial Class frmMain
         Me.lblHost = New System.Windows.Forms.LinkLabel()
         Me.ToolTip1 = New System.Windows.Forms.ToolTip(Me.components)
         Me.NotifyIcon1 = New System.Windows.Forms.NotifyIcon(Me.components)
+        Me.chkPDF = New System.Windows.Forms.CheckBox()
         Me.TabControl1.SuspendLayout()
         Me.TabPage1.SuspendLayout()
         Me.SuspendLayout()
@@ -52,6 +53,7 @@ Partial Class frmMain
         '
         'TabPage1
         '
+        Me.TabPage1.Controls.Add(Me.chkPDF)
         Me.TabPage1.Controls.Add(Me.txtIPAddress)
         Me.TabPage1.Controls.Add(Me.Label1)
         Me.TabPage1.Controls.Add(Me.chkAutoStart)
@@ -168,6 +170,17 @@ Partial Class frmMain
         Me.NotifyIcon1.Text = "NotifyIcon1"
         Me.NotifyIcon1.Visible = True
         '
+        'chkPDF
+        '
+        Me.chkPDF.AutoSize = True
+        Me.chkPDF.Location = New System.Drawing.Point(96, 116)
+        Me.chkPDF.Name = "chkPDF"
+        Me.chkPDF.Size = New System.Drawing.Size(57, 17)
+        Me.chkPDF.TabIndex = 9
+        Me.chkPDF.Text = "Is PDF"
+        Me.ToolTip1.SetToolTip(Me.chkPDF, "Check if you are going to receive PDF file.")
+        Me.chkPDF.UseVisualStyleBackColor = True
+        '
         'frmMain
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -202,4 +215,5 @@ Partial Class frmMain
     Friend WithEvents txtIPAddress As TextBox
     Friend WithEvents Label1 As Label
     Friend WithEvents NotifyIcon1 As NotifyIcon
+    Friend WithEvents chkPDF As CheckBox
 End Class
