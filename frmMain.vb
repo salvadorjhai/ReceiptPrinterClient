@@ -180,6 +180,19 @@ Public Class frmMain
         End If
     End Sub
 
+    ''' <summary>
+    ''' sample usage (PDF) (send as byte)
+    ''' var pdf = document.GeneratePdf(); // this is a byte[]
+    ''' using var cl = new System.Net.WebClient();
+    ''' cl.Headers.Add("Content-Type", "application/pdf");
+    ''' cl.UploadData($"http://192.168.3.246:62223/", pdf);
+    ''' 
+    ''' sample usage (pos/raw byte) (send as byte)
+    ''' using var cl = new System.Net.WebClient();
+    ''' cl.Headers.Add("Content-Type", "application/octet-stream");
+    ''' cl.UploadData(printerLocation, data);
+    ''' </summary>
+
     Async Sub StartServer()
 
         If Not HttpListener.IsSupported Then
@@ -218,12 +231,21 @@ Public Class frmMain
                     Try
                         ' Get POST body as byte array
                         Dim bodyBytes As Byte()
-                        If My.Settings.IsBase64 = False Or My.Settings.IsPDF = True Then
+                        Dim isPdf = My.Settings.IsPDF
+                        Dim IsBase64 = My.Settings.IsBase64
+
+                        ' override if content type is set
+                        If String.IsNullOrWhiteSpace(request.ContentType) = False AndAlso request.ContentType.Contains("pdf") Then isPdf = True
+                        If String.IsNullOrWhiteSpace(request.ContentType) = False AndAlso request.ContentType.Contains("octet-stream") Then IsBase64 = False
+
+                        If IsBase64 = False Or isPdf = True Then
+                            ' for bytes[] (pos doc/printer, pdf)
                             Using ms As New IO.MemoryStream()
                                 request.InputStream.CopyTo(ms)
                                 bodyBytes = ms.ToArray()
                             End Using
                         Else
+                            ' for base64 string
                             Using reader As New StreamReader(request.InputStream, request.ContentEncoding)
                                 Dim base64String As String = reader.ReadToEnd()
                                 bodyBytes = Convert.FromBase64String(base64String)
@@ -231,7 +253,7 @@ Public Class frmMain
                         End If
 
                         ' print
-                        If My.Settings.IsPDF Then
+                        If isPdf Then
                             Using stream = New MemoryStream(bodyBytes)
                                 Using pdf = PdfDocument.Load(stream)
                                     Using printdoc = pdf.CreatePrintDocument()
