@@ -233,12 +233,17 @@ Public Class frmMain
                         Dim bodyBytes As Byte()
                         Dim isPdf = My.Settings.IsPDF
                         Dim IsBase64 = My.Settings.IsBase64
+                        Dim IsImage = False
 
                         ' override if content type is set
                         If String.IsNullOrWhiteSpace(request.ContentType) = False AndAlso request.ContentType.Contains("pdf") Then isPdf = True
                         If String.IsNullOrWhiteSpace(request.ContentType) = False AndAlso request.ContentType.Contains("octet-stream") Then IsBase64 = False
+                        If String.IsNullOrWhiteSpace(request.ContentType) = False AndAlso request.ContentType.Contains("image") Then
+                            IsImage = True
+                            isPdf = False
+                        End If
 
-                        If IsBase64 = False Or isPdf = True Then
+                        If IsBase64 = False Or isPdf = True Or IsImage = True Then
                             ' for bytes[] (pos doc/printer, pdf)
                             Using ms As New IO.MemoryStream()
                                 request.InputStream.CopyTo(ms)
@@ -256,18 +261,42 @@ Public Class frmMain
                         If isPdf Then
                             Using stream = New MemoryStream(bodyBytes)
                                 Using pdf = PdfDocument.Load(stream)
+                                    ' pdf.Save("./1.pdf")
                                     Using printdoc = pdf.CreatePrintDocument()
                                         printdoc.PrinterSettings.PrinterName = My.Settings.Printer
+                                        printdoc.DefaultPageSettings.Margins = New Margins(0, 0, 0, 100)
                                         printdoc.Print()
                                     End Using
+
                                 End Using
                             End Using
                         Else
                             'Dim hexDump = BitConverter.ToString(bodyBytes).Replace("-", " ")
                             'File.WriteAllText(".\printerdump.txt", $"Received {bodyBytes.Length} bytes: {hexDump}")
+                            If IsImage = False Then
+                                posPrinter.SetDocument(bodyBytes)
+                                posPrinter.PrintDocument()
+                            Else
+                                'Dim printDoc As New PrintDocument()
 
-                            posPrinter.SetDocument(bodyBytes)
-                            posPrinter.PrintDocument()
+                                '' Convert to Bitmap
+                                'Dim bitmap As Bitmap
+                                'Using ms As New MemoryStream(bodyBytes)
+                                '    bitmap = New Bitmap(ms)
+                                'End Using
+
+                                '' Optional: Set printer name and paper size
+                                'printDoc.PrinterSettings.PrinterName = My.Settings.Printer
+                                'printDoc.DefaultPageSettings.Margins = New Margins(0, 0, 0, 0)
+                                'printDoc.DefaultPageSettings.PaperSize = New PaperSize("Custom", Bitmap.Width, Bitmap.Height)
+
+                                'AddHandler printDoc.PrintPage, Sub(sender, e)
+                                '                                   e.Graphics.DrawImage(bitmap, 0, 0)
+                                '                                   e.HasMorePages = False
+                                '                               End Sub
+
+                                'printDoc.Print()
+                            End If
                         End If
 
                         ' write response
