@@ -65,7 +65,7 @@ Public Class frmMain
         Dim printers = GetListOfPrinters()
         cboPrinters.Items.Clear()
         cboPrinters.Items.AddRange(printers)
-        txtPort.Text = GetFreePort(1).FirstOrDefault
+        txtPort.Text = "62223" ' default port
 
         If String.IsNullOrWhiteSpace(My.Settings.Printer) = False Then cboPrinters.Text = My.Settings.Printer
         If String.IsNullOrWhiteSpace(My.Settings.Host) = False Then txtIPAddress.Text = My.Settings.Host
@@ -204,6 +204,8 @@ Public Class frmMain
         Try
             _SERVER = New HttpListener
             _SERVER.Prefixes.Add($"http://{txtIPAddress.Text}:{txtPort.Text}/")
+            _SERVER.Prefixes.Add($"http://127.0.0.1:{txtPort.Text}/")
+            _SERVER.Prefixes.Add($"http://localhost:{txtPort.Text}/")
             _SERVER.Start()
         Catch ex As Exception
             Throw ex
@@ -225,6 +227,18 @@ Public Class frmMain
 
                 Dim context = Await _SERVER.GetContextAsync()
                 Dim request = context.Request
+                Dim response = context.Response
+
+                ' fix for CORS preflight request 
+                response.AddHeader("Access-Control-Allow-Origin", "*")
+                response.AddHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+                response.AddHeader("Access-Control-Allow-Headers", "Content-Type")
+
+                If request.HttpMethod.ToUpper = "OPTIONS" Then
+                    response.StatusCode = 200
+                    response.Close()
+                    Continue Do
+                End If
 
                 If request.HttpMethod.ToUpper = "POST" Then
 
@@ -261,7 +275,7 @@ Public Class frmMain
                         If isPdf Then
                             Using stream = New MemoryStream(bodyBytes)
                                 Using pdf = PdfDocument.Load(stream)
-                                    ' pdf.Save("./1.pdf")
+                                    If Debugger.IsAttached Then pdf.Save("./1.pdf")
                                     Using printdoc = pdf.CreatePrintDocument()
                                         printdoc.PrinterSettings.PrinterName = My.Settings.Printer
                                         printdoc.DefaultPageSettings.Margins = New Margins(0, 0, 0, 100)

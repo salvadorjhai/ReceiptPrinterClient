@@ -17,7 +17,10 @@
             compatibility.
         -->
         <!--<requestedExecutionLevel level="asInvoker" uiAccess="false" />-->
+
+		  <!-- higpit ng win11 -->
 		  <requestedExecutionLevel  level="requireAdministrator" uiAccess="false" />
+		  
       </requestedPrivileges>
     </security>
   </trustInfo>
