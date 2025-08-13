@@ -9,7 +9,7 @@ Public Class frmMain
 
     Dim WithEvents _BG As New BackgroundWorker
     Dim _SERVER As HttpListener = Nothing
-    Dim rev As Integer = 1
+    Dim rev As Integer = 2
 
     Private Sub frmMain_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Me.CenterToScreen()
@@ -249,13 +249,27 @@ Public Class frmMain
                         Dim IsBase64 = My.Settings.IsBase64
                         Dim IsImage = False
 
-                        ' override if content type is set
-                        If String.IsNullOrWhiteSpace(request.ContentType) = False AndAlso request.ContentType.Contains("pdf") Then isPdf = True
-                        If String.IsNullOrWhiteSpace(request.ContentType) = False AndAlso request.ContentType.Contains("octet-stream") Then IsBase64 = False
+                        ' ------------
+                        ' overrides if content type is set
+                        ' for pdf (sent as a byte)
+                        If String.IsNullOrWhiteSpace(request.ContentType) = False AndAlso request.ContentType.Contains("pdf") Then
+                            isPdf = True
+                            IsBase64 = False
+                        End If
+
+                        ' for esc/pos (sent as a byte)
+                        If String.IsNullOrWhiteSpace(request.ContentType) = False AndAlso request.ContentType.Contains("octet-stream") Then
+                            isPdf = False
+                            IsBase64 = False
+                        End If
+
+                        ' for image (sent as a byte)
                         If String.IsNullOrWhiteSpace(request.ContentType) = False AndAlso request.ContentType.Contains("image") Then
                             IsImage = True
                             isPdf = False
+                            IsBase64 = False
                         End If
+                        ' ------------
 
                         If IsBase64 = False Or isPdf = True Or IsImage = True Then
                             ' for bytes[] (pos doc/printer, pdf)
